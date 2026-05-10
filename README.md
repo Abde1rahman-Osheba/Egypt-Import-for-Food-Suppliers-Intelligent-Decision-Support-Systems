@@ -1,56 +1,475 @@
-# Egypt Food Import Intelligence DSS
+# 🌾 Egypt Food Import Intelligence DSS  
+### From scattered global signals to early warnings for Egypt’s food import supply chain
 
-Streamlit decision-support prototype for an Intelligent Decision Support Systems (IDSS) course. It fuses **WFP** retail prices with **optional FAO / FAOSTAT tracks** (wheat spine + multi-commodity catalog for all WFP goods when you provide FAOSTAT), **Arabic–English NLP** on news headlines, **shipping / port** telemetry, **GDELT** conflict aggregates, and **daily port activity** into forecasting, risk scoring, GIS-style overlays, goal programming, AHP weighting, discriminant risk classification, and a rule-based inference layer.
+A **Streamlit-based Intelligent Decision Support System (IDSS)** prototype built for analyzing, forecasting, and explaining risks in Egypt’s food import ecosystem.
 
-## Data (training & features)
+This project turns raw signals from **food prices, FAOSTAT commodity tracks, bilingual Arabic–English news, geopolitical conflict data, port activity, shipping indicators, and synthetic maritime intelligence** into a decision-support dashboard for early disruption awareness.
 
-Place these CSV files in the project root (expected defaults):
+Instead of waiting for shortages, price spikes, or shipment delays to become obvious, this DSS helps stakeholders ask:
 
-- `wfp_food_prices_egy.csv` — WFP Egypt retail series; **forecasting** and baseline price stress.
-- `fao_wheat_egy.csv` — optional **single wheat-focused** FAOSTAT (or simple monthly `month,price_usd`) export; merges into the **pipeline wheat spine** (55%/45% FAO/WFP weights when overlapping months exist — see `merge_wfp_fao`).
-- `fao_commodities_egy.csv` — optional **multi-item** FAOSTAT export for Egypt (`Area`, `Item`, `Value`, `Year`, …). Each **Item** becomes a monthly series; the app picks the closest Item name match for **every commodity** listed in `wfp_food_prices_egy.csv` and blends USD series the same way. You can ship one combined FAOSTAT download here instead of per-commodity files.
-- `gdelt_conflict_1_0.csv` — conflict/event intensity by country; geopolitical layer.
-- `Daily_Port_Activity_Data_and_Trade_Estimates.csv` — chunked read; **logistics / shipping proxy** for Egypt + corridors.
-- `shipping_metrics.csv` — optional **shipping tracker** KPIs (congestion, delays, berth use), forward-filled to monthly.
-- `news_headlines_bilingual.csv` — `published_at`, `text`, `language` (`ar` / `en`); drives **NLP conflict + sentiment** indices. If missing, the pipeline synthesizes demo headlines from price spikes (clearly flagged in the UI).
+> **“Is a food import disruption forming — and what should we do before it becomes a crisis?”**
 
-Optional: set **`SHIPPING_TRACKER_API_URL`** to a JSON endpoint for live vessel/congestion APIs.
+---
 
-**Demo maritime CSVs** (offline, no AIS API) in `data/sample/`: `demo_ports.csv`, `demo_vessels.csv`, `demo_conflict_zones.csv`, `demo_routes.csv`. If missing, the app falls back to the same data from in-code defaults.
+## 🚀 Project Vision
 
-The discriminant-analysis **labels** remain rule-generated for educational use (see `PROJECT_REPORT.md`).
+Egypt relies heavily on imported strategic commodities, especially wheat and other food staples. Global disruptions such as conflict, export restrictions, port congestion, freight delays, or sudden price movements can quickly affect local food availability and import costs.
 
-## Modules (P-02 tech stack)
+The goal of this system is to support **proactive decision-making** by combining multiple weak signals into one explainable risk view.
 
-| Layer | Files |
-|--------|--------|
-| Time series / blend | `src/data_pipeline.py`, `src/fao_prices.py`, `src/decision_methods.py` |
-| Arabic–English NLP | `src/nlp_conflict_index.py` |
-| Shipping | `src/shipping_tracker.py` |
-| Risk dashboard | `app.py`, `src/ui_components.py` |
-| Port / vessel intelligence (synthetic AIS demo) | `src/port_intelligence.py`, `src/vessel_tracking.py`, `src/conflict_zones.py`, `src/route_risk.py`, `src/maritime_viz.py`, `src/ui_maritime_dashboard.py`, `src/alert_system.py`, `src/ollama_advisor.py`, `data/sample/*.csv` |
+The system is designed as an educational but realistic IDSS prototype that demonstrates:
 
-## Run
+- 📈 Forecasting food price stress
+- 🌍 Monitoring geopolitical and conflict exposure
+- ⚓ Tracking logistics and port activity indicators
+- 📰 Extracting risk signals from Arabic and English news headlines
+- 🧠 Applying IDSS methods such as AHP, goal programming, discriminant analysis, inference rules, and explanation facilities
+- 🗺️ Visualizing ports, vessels, conflict zones, and route risks in a GIS-style dashboard
+
+---
+
+## ✨ What Makes This Project Different?
+
+Most dashboards show data.  
+This system tries to **reason over data**.
+
+It does not only answer:
+
+> “What happened?”
+
+It also supports:
+
+> “Why is this risky?”  
+> “Which commodity is under pressure?”  
+> “Which routes or ports may be affected?”  
+> “What is the recommended action?”  
+> “How did the system reach this decision?”
+
+That makes it more than a visualization tool — it is a decision-support prototype with a knowledge base, inference layer, explainable recommendations, and multiple decision-analysis methods.
+
+---
+
+## 🧩 Main Features
+
+### 1. Food Price Forecasting & Stress Detection
+
+The app uses WFP Egypt retail food price data as the main forecasting source.
+
+It can also blend WFP prices with optional FAO / FAOSTAT commodity data to create a stronger commodity-level price spine.
+
+Supported price intelligence includes:
+
+- Monthly food price trend analysis
+- Forecasting baseline price movement
+- Price stress indicators
+- WFP + FAO blended commodity signals
+- Wheat-focused analysis
+- Multi-commodity catalog matching
+
+---
+
+### 2. FAOSTAT Commodity Blending
+
+The system supports two FAO data modes:
+
+| File | Purpose |
+|---|---|
+| `fao_wheat_egy.csv` | Optional wheat-focused FAOSTAT file |
+| `fao_commodities_egy.csv` | Optional multi-item FAOSTAT export for Egypt |
+
+When FAO and WFP overlap, the system blends them using a weighted approach:
+
+```text
+55% FAO + 45% WFP
+```
+
+This gives the pipeline a stronger commodity intelligence layer while keeping WFP retail prices as the main local signal.
+
+---
+
+### 3. Arabic–English News Risk Intelligence
+
+The NLP layer processes bilingual news headlines to detect possible food import disruption signals.
+
+Supported headline inputs:
+
+```text
+news_headlines_bilingual.csv
+```
+
+Expected columns:
+
+```text
+published_at, text, language
+```
+
+Supported languages:
+
+```text
+ar, en
+```
+
+The NLP module extracts signals related to:
+
+- Conflict
+- Supply disruption
+- Price pressure
+- Food security
+- Shipping and logistics risk
+- Negative or alarming sentiment
+
+If the news file is missing, the app generates demo headlines from price spikes and clearly marks them as synthetic in the UI.
+
+---
+
+### 4. Geopolitical Conflict Layer
+
+The system uses GDELT-style conflict aggregates to model international disruption exposure.
+
+Expected file:
+
+```text
+gdelt_conflict_1_0.csv
+```
+
+This layer helps connect external events to import risk, especially when conflict appears near:
+
+- Exporting countries
+- Shipping corridors
+- Maritime chokepoints
+- Regional trade routes
+- Strategic food supply areas
+
+---
+
+### 5. Shipping, Port, and Maritime Intelligence
+
+The dashboard includes a synthetic AIS-style maritime intelligence layer for offline demonstrations.
+
+It can visualize:
+
+- Egyptian and regional ports
+- Vessel positions
+- Port activity
+- Route paths
+- Conflict zones
+- Risk overlays
+- Alternative route suggestions
+- Vessel and port information cards
+
+Demo maritime files are located in:
+
+```text
+data/sample/
+```
+
+Expected demo files:
+
+```text
+demo_ports.csv
+demo_vessels.csv
+demo_conflict_zones.csv
+demo_routes.csv
+```
+
+If these files are missing, the app falls back to in-code demo defaults.
+
+---
+
+### 6. Route Risk and Rerouting Support
+
+The maritime layer supports route-level risk reasoning.
+
+For each vessel or route, the system can evaluate:
+
+- Whether the route passes near a risk zone
+- Whether conflict zones may delay movement
+- Whether an alternative route should be suggested
+- Why a route may be safer or riskier
+
+The route advisor can optionally connect to Ollama for local LLM-based explanation and recommendation support.
+
+---
+
+### 7. Decision-Support Methods
+
+This project maps directly to Intelligent Decision Support Systems concepts.
+
+| IDSS Concept | Implementation |
+|---|---|
+| Data Management | Safe loaders and preprocessing pipelines |
+| Model Management | Forecasting, risk scoring, AHP, goal programming, discriminant analysis |
+| Knowledge Base | Structured rules and domain knowledge |
+| Inference Engine | Rule-based reasoning over risk indicators |
+| Explanation Facility | Recommendation cards and reasoning summaries |
+| User Interface | Streamlit dashboard and maritime visual interface |
+
+---
+
+## 🧠 IDSS Methods Used
+
+The project demonstrates several decision-support techniques.
+
+### AHP Weighting
+
+Used to prioritize decision criteria such as:
+
+- Price stress
+- Conflict intensity
+- Port congestion
+- Shipping delay
+- News risk
+- Commodity importance
+
+### Goal Programming
+
+Used to model trade-offs between competing goals, such as:
+
+- Minimize import risk
+- Minimize expected delay
+- Minimize cost pressure
+- Maintain supply stability
+
+### Discriminant Risk Classification
+
+Used to classify risk states based on generated educational labels.
+
+> Note: The discriminant-analysis labels are rule-generated for course demonstration purposes. See `PROJECT_REPORT.md` for methodology details.
+
+### Rule-Based Inference
+
+The inference engine converts signals into explainable alerts, such as:
+
+- High price stress
+- High geopolitical exposure
+- Possible port disruption
+- Elevated commodity risk
+- Route danger warning
+- Suggested monitoring or rerouting action
+
+---
+
+## 🗂️ Data Files
+
+Place the following CSV files in the project root.
+
+| File | Required | Purpose |
+|---|---:|---|
+| `wfp_food_prices_egy.csv` | Yes | Main WFP Egypt retail food price series |
+| `fao_wheat_egy.csv` | Optional | Wheat-focused FAOSTAT or monthly wheat USD series |
+| `fao_commodities_egy.csv` | Optional | Multi-commodity FAOSTAT export for Egypt |
+| `gdelt_conflict_1_0.csv` | Recommended | Geopolitical conflict/event intensity |
+| `Daily_Port_Activity_Data_and_Trade_Estimates.csv` | Recommended | Daily port activity and logistics proxy |
+| `shipping_metrics.csv` | Optional | Congestion, delay, berth use, and shipping KPIs |
+| `news_headlines_bilingual.csv` | Optional | Arabic–English news headlines for NLP risk index |
+
+---
+
+## ⚓ Demo Maritime Data
+
+Offline maritime demo files are stored in:
+
+```text
+data/sample/
+```
+
+| File | Description |
+|---|---|
+| `demo_ports.csv` | Port locations and metadata |
+| `demo_vessels.csv` | Synthetic vessel positions and voyage information |
+| `demo_conflict_zones.csv` | Risk zones, conflicts, or disruption areas |
+| `demo_routes.csv` | Vessel routes and corridor paths |
+
+These files allow the maritime dashboard to work without a live AIS API.
+
+---
+
+## 🌐 Optional Live Shipping API
+
+You can connect a live shipping or vessel-tracking API by setting:
 
 ```bash
-cd IDSS_P
+SHIPPING_TRACKER_API_URL="your_json_endpoint_here"
+```
+
+The system will use the endpoint as a live telemetry source when available.
+
+---
+
+## 🏗️ Project Structure
+
+```text
+IDSS_P/
+│
+├── app.py
+├── requirements.txt
+├── PROJECT_REPORT.md
+│
+├── src/
+│   ├── data_pipeline.py
+│   ├── fao_prices.py
+│   ├── decision_methods.py
+│   ├── goal_programming.py
+│   ├── ahp.py
+│   ├── discriminant_analysis.py
+│   ├── gis_analysis.py
+│   ├── shipping_tracker.py
+│   ├── nlp_conflict_index.py
+│   ├── knowledge_base.py
+│   ├── inference_engine.py
+│   ├── explanation_engine.py
+│   ├── ui_components.py
+│   │
+│   ├── port_intelligence.py
+│   ├── vessel_tracking.py
+│   ├── conflict_zones.py
+│   ├── route_risk.py
+│   ├── maritime_viz.py
+│   ├── ui_maritime_dashboard.py
+│   ├── alert_system.py
+│   └── ollama_advisor.py
+│
+└── data/
+    └── sample/
+        ├── demo_ports.csv
+        ├── demo_vessels.csv
+        ├── demo_conflict_zones.csv
+        └── demo_routes.csv
+```
+
+---
+
+## 🧪 Tech Stack
+
+| Layer | Tools |
+|---|---|
+| Dashboard | Streamlit |
+| Data Processing | Pandas, NumPy |
+| Forecasting & Analysis | Python time-series and statistical methods |
+| NLP | Arabic–English headline processing |
+| Decision Methods | AHP, goal programming, discriminant analysis |
+| GIS / Maritime View | Map-based overlays and route visualization |
+| LLM Advisor | Optional Ollama integration |
+| Reporting | `PROJECT_REPORT.md` |
+
+---
+
+## ▶️ How to Run
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Abde1rahman-Osheba/Egypt-Import-for-Food-Suppliers-Intelligent-Decision-Support-Systems.git
+cd Egypt-Import-for-Food-Suppliers-Intelligent-Decision-Support-Systems
+```
+
+Install dependencies:
+
+```bash
 python -m pip install -r requirements.txt
+```
+
+Run the Streamlit app:
+
+```bash
 streamlit run app.py
 ```
 
-On Windows, if your default `python` is MSYS/MinGW and wheels fail to install, use **Python 3.10+ from python.org** (or the `py -3.12` launcher) so NumPy/Pandas install from wheels.
+---
 
-## IDSS concepts mapped in the app
+## 🪟 Windows Notes
 
-| Concept | Where it appears |
-|--------|------------------|
-| Data management | `src/data_pipeline.py`, safe loaders |
-| Model management | `src/decision_methods.py`, `src/goal_programming.py`, `src/ahp.py`, `src/discriminant_analysis.py`, `src/gis_analysis.py`, `src/fao_prices.py`, `src/shipping_tracker.py`, `src/nlp_conflict_index.py` |
-| Knowledge base | `src/knowledge_base.py` |
-| Inference engine | `src/inference_engine.py` |
-| Explanation facility | `src/explanation_engine.py`, recommendation cards |
-| User interface | `app.py`, `src/ui_components.py` |
+If package installation fails on Windows because your default `python` points to MSYS/MinGW, use Python 3.10+ from python.org.
 
-## Project report
+You can also try:
 
-See `PROJECT_REPORT.md` for methodology write-up and architecture diagrams.
+```bash
+py -3.12 -m pip install -r requirements.txt
+py -3.12 -m streamlit run app.py
+```
+
+---
+
+## 📊 Dashboard Capabilities
+
+The Streamlit dashboard includes sections for:
+
+- Food price trends
+- Forecasting and price stress
+- FAO/WFP blended commodity analysis
+- Geopolitical conflict risk
+- News-based NLP risk index
+- Shipping and logistics indicators
+- Port and vessel intelligence
+- Route risk and conflict-zone overlays
+- IDSS recommendations
+- Explanation cards
+- Rule-based alerts
+
+---
+
+## 🧭 Example Decision Questions
+
+This DSS helps answer questions such as:
+
+- Which commodities are showing early price stress?
+- Are geopolitical events increasing import risk?
+- Are port or shipping indicators showing possible delay?
+- Which vessels or routes are close to conflict zones?
+- Should a route be monitored, rerouted, or kept as-is?
+- Which risk factor contributes most to the final score?
+- What action should a decision-maker consider next?
+
+---
+
+## 📌 Educational Scope
+
+This project is designed for an **Intelligent Decision Support Systems course**.
+
+It focuses on demonstrating how DSS components can work together:
+
+```text
+Data → Models → Knowledge Base → Inference → Explanation → Decision Support
+```
+
+Some data layers may be synthetic, optional, or rule-generated for academic demonstration. The system is not intended as a production-grade national food security platform without further validation, live data integration, and expert review.
+
+---
+
+## 📄 Project Report
+
+For methodology, architecture diagrams, decision-support design, and educational explanation, see:
+
+```text
+PROJECT_REPORT.md
+```
+
+---
+
+## 🧠 Core Idea
+
+Food import disruption rarely starts as one obvious signal.
+
+It begins as a pattern:
+
+- A price starts rising
+- A port slows down
+- A headline becomes more alarming
+- A conflict zone expands
+- A route becomes riskier
+- A commodity becomes harder to secure
+
+This project connects those signals into one intelligent dashboard.
+
+> **The aim is not only to predict disruption — but to explain it, visualize it, and support better decisions before it becomes visible in the market.**
+
+
+## 🔗 Repository
+
+GitHub Repository:
+
+```text
+https://github.com/Abde1rahman-Osheba/Egypt-Import-for-Food-Suppliers-Intelligent-Decision-Support-Systems
+```
+
+If this project helped you understand how intelligent decision-support systems can combine forecasting, NLP, GIS, shipping intelligence, and rule-based reasoning, consider starring the repository.
