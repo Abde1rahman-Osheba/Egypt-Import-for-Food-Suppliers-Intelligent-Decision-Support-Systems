@@ -1,0 +1,9 @@
+ship_id,ship_name,ship_type,origin_port_id,dest_port_id,cargo_type,cargo_quantity_mt,departure_utc,eta_utc,speed_kn,demo_progress_pct
+V001,MV Nile Grain,bulk_carrier,UA_ODS,EG_ALX,wheat,35000,2026-05-06T08:00:00+00:00,2026-05-12T18:00:00+00:00,11.5,62.0
+V002,MV Delta Maize,bulk_carrier,RO_CND,EG_DAM,maize,28000,2026-05-06T14:00:00+00:00,2026-05-11T16:00:00+00:00,12.0,55.00000000000001
+V003,MV Horizon Reefer,reefer_vessel,TR_AMB,EG_PSD,veg_oil,5200,2026-05-07T08:00:00+00:00,2026-05-10T14:00:00+00:00,13.2,41.0
+V004,MV Cairo Trader,general_cargo,GR_PIR,EG_ALX,flour,12000,2026-05-04T08:00:00+00:00,2026-05-09T20:00:00+00:00,11.0,74.0
+V005,MV Red Sea Sugar,bulk_carrier,SA_JED,EG_SOH,sugar,24000,2026-05-06T20:00:00+00:00,2026-05-09T02:00:00+00:00,13.0,57.99999999999999
+V006,MV Black Sea Runner,bulk_carrier,RU_NVR,EG_ALX,wheat,42000,2026-05-07T08:00:00+00:00,2026-05-13T12:00:00+00:00,10.5,67.0
+V007,MV Levant Express,container_ship,TR_AMB,EG_DAM,mixed_food,18500,2026-05-08T08:00:00+00:00,2026-05-11T08:00:00+00:00,12.8,48.0
+V008,MV Maghreb Sun,tanker,FR_MRS,EG_SUZ,veg_oil,15000,2026-05-09T08:00:00+00:00,2026-05-14T08:00:00+00:00,11.2,52.0
